@@ -1,7 +1,9 @@
 import unittest
 from src.daq_config_widget import DaqConfigWidget
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox  # type: ignore  # PySide6 공식 문서 기준 올바른 import이며, linter 오탐 방지
 import sys
+from PySide6.QtGui import QDrag, QMouseEvent, QDropEvent, QDragEnterEvent, QPixmap, QCursor
+from PySide6.QtCore import Qt, QMimeData, QEvent
 
 app = QApplication.instance() or QApplication(sys.argv)
 

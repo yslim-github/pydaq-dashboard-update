@@ -3,6 +3,7 @@ import numpy as np
 from src.plot_widget import RealtimePlotWidget
 from PySide6.QtWidgets import QApplication
 import sys
+import pyqtgraph as pg
 
 # QApplication 인스턴스 생성 (GUI 위젯 테스트용)
 app = QApplication.instance() or QApplication(sys.argv)
@@ -46,6 +47,50 @@ class TestRealtimePlotWidget(unittest.TestCase):
     # 3차원 데이터
     with self.assertRaises(Exception):
       self.widget.append_data(np.ones((2, 10, 2)))
+
+class TestRealtimePlotWidgetColormap(unittest.TestCase):
+  def setUp(self):
+    self.widget = RealtimePlotWidget(channel_count=3, buffer_size=1000)
+
+  def test_set_colormap_default(self):
+    """default 컬러맵 적용 시 곡선/텍스트 색상 확인"""
+    self.widget.set_colormap('default')
+    colors = ['#ffe600', '#ffffff', '#00e6ff']
+    for i, curve in enumerate(self.widget.curves):
+      pen = curve.opts['pen']
+      self.assertEqual(pen.color().name(), colors[i])
+    for i, txt in enumerate(self.widget.text_items):
+      self.assertEqual(txt.color.name(), colors[i])
+
+  def test_set_colormap_viridis(self):
+    """viridis 컬러맵 적용 시 곡선/텍스트 색상 확인"""
+    self.widget.set_colormap('viridis')
+    colors = ['#440154', '#3b528b', '#21918c']
+    for i, curve in enumerate(self.widget.curves):
+      pen = curve.opts['pen']
+      self.assertEqual(pen.color().name(), colors[i])
+    for i, txt in enumerate(self.widget.text_items):
+      self.assertEqual(txt.color.name(), colors[i])
+
+  def test_set_colormap_plasma(self):
+    """plasma 컬러맵 적용 시 곡선/텍스트 색상 확인"""
+    self.widget.set_colormap('plasma')
+    colors = ['#0d0887', '#7e03a8', '#cc4778']
+    for i, curve in enumerate(self.widget.curves):
+      pen = curve.opts['pen']
+      self.assertEqual(pen.color().name(), colors[i])
+    for i, txt in enumerate(self.widget.text_items):
+      self.assertEqual(txt.color.name(), colors[i])
+
+  def test_set_colormap_magma(self):
+    """magma 컬러맵 적용 시 곡선/텍스트 색상 확인"""
+    self.widget.set_colormap('magma')
+    colors = ['#000004', '#3b0f70', '#8c2981']
+    for i, curve in enumerate(self.widget.curves):
+      pen = curve.opts['pen']
+      self.assertEqual(pen.color().name(), colors[i])
+    for i, txt in enumerate(self.widget.text_items):
+      self.assertEqual(txt.color.name(), colors[i])
 
 if __name__ == "__main__":
   unittest.main() 

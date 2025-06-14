@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QComboBox, QPushButton, QMessageBox
-from PySide6.QtCore import QTranslator, QLocale, QLibraryInfo
+from PySide6.QtCore import QTranslator, QLocale, QLibraryInfo, Signal
 import json
 import os
 
@@ -7,7 +7,13 @@ class SettingsWidget(QWidget):
   """
   다국어(한/영) 및 컬러맵/테마 설정 위젯
   - 언어/테마 선택, 설정 저장/불러오기 지원
+  - 테마/언어/컬러맵 변경 시그널 제공
   """
+  # 테마/언어/컬러맵 변경 시그널
+  theme_changed = Signal(str)
+  language_changed = Signal(str)
+  colormap_changed = Signal(str)
+
   def __init__(self, parent=None):
     super().__init__(parent)
     self.settings_file = "user_settings.json"
@@ -45,31 +51,31 @@ class SettingsWidget(QWidget):
 
   def change_language(self):
     """
-    언어 변경 (예시: 실제 번역 파일은 별도 필요)
+    언어 변경 (시그널 emit 및 자동 저장)
     """
     idx = self.lang_combo.currentIndex()
     if idx == 0:
       self.current_language = "ko"
-      # 실제 번역 적용은 QTranslator 사용 (예시)
-      # self.translator.load("ko.qm")
     else:
       self.current_language = "en"
-      # self.translator.load("en.qm")
-    # 실제 앱에서는 QApplication.installTranslator(self.translator) 필요
+    self.language_changed.emit(self.current_language)
+    self.save_settings()  # 변경 시 자동 저장
 
   def change_theme(self):
     """
-    테마 변경 (예시: light/dark)
+    테마 변경 (시그널 emit 및 자동 저장)
     """
     self.current_theme = self.theme_combo.currentText()
-    # 실제 테마 적용은 스타일시트/pyqtgraph setBackground 등 활용
+    self.theme_changed.emit(self.current_theme)
+    self.save_settings()  # 변경 시 자동 저장
 
   def change_colormap(self):
     """
-    컬러맵 변경 (예시: pyqtgraph 컬러맵)
+    컬러맵 변경 (시그널 emit 및 자동 저장)
     """
     self.current_colormap = self.colormap_combo.currentText()
-    # 실제 컬러맵 적용은 pyqtgraph plotItem.setColormap 등 활용
+    self.colormap_changed.emit(self.current_colormap)
+    self.save_settings()  # 변경 시 자동 저장
 
   def save_settings(self):
     """
@@ -89,7 +95,7 @@ class SettingsWidget(QWidget):
 
   def load_settings(self):
     """
-    저장된 설정을 불러와 UI에 반영
+    저장된 설정을 불러와 UI에 반영 (앱 시작 시 자동 복원)
     """
     if not os.path.exists(self.settings_file):
       return

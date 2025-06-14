@@ -2,8 +2,14 @@ import unittest
 import os
 import json
 from PySide6.QtWidgets import QApplication, QPushButton, QMessageBox, QFileDialog
-from src.dashboard import DashboardWidget
+from PySide6.QtTest import QTest
+from PySide6.QtCore import Qt
 import sys
+import traceback
+
+# 메인 윈도우 임포트
+sys.path.insert(0, '../src')
+from main import MainWindow
 
 app = QApplication.instance() or QApplication(sys.argv)
 
@@ -76,6 +82,61 @@ class TestDashboardWidget(unittest.TestCase):
     finally:
       QMessageBox.critical = orig_critical
       QFileDialog.getOpenFileName = orig_getopen
+
+class TestToolbarAndBottomBar(unittest.TestCase):
+  def setUp(self):
+    self.window = MainWindow()
+    self.window.show()
+
+  def tearDown(self):
+    self.window.close()
+
+  def test_toolbar_buttons(self):
+    """툴바 버튼(재생/정지/녹화/북마크) 클릭 동작 테스트"""
+    # 재생 버튼 클릭
+    QTest.mouseClick(self.window.btn_play, Qt.LeftButton)
+    self.assertFalse(self.window.btn_play.isEnabled())
+    self.assertTrue(self.window.btn_stop.isEnabled())
+    # 정지 버튼 클릭
+    QTest.mouseClick(self.window.btn_stop, Qt.LeftButton)
+    self.assertTrue(self.window.btn_play.isEnabled())
+    self.assertFalse(self.window.btn_stop.isEnabled())
+    # 녹화 버튼 클릭(예외 없음)
+    try:
+      QTest.mouseClick(self.window.btn_rec, Qt.LeftButton)
+    except Exception:
+      self.fail("녹화 버튼 클릭 시 예외 발생")
+    # 북마크 버튼 클릭(예외 없음)
+    try:
+      QTest.mouseClick(self.window.btn_mark, Qt.LeftButton)
+    except Exception:
+      self.fail("북마크 버튼 클릭 시 예외 발생")
+
+  def test_marker_checkboxes(self):
+    """마커 체크박스 토글 동작 테스트"""
+    for i, cb in enumerate(self.window.marker_checkboxes):
+      QTest.mouseClick(cb, Qt.LeftButton)
+      self.assertTrue(cb.isChecked())
+      QTest.mouseClick(cb, Qt.LeftButton)
+      self.assertFalse(cb.isChecked())
+
+  def test_xaxis_checkboxes(self):
+    """X축 스케일 체크박스(중복 방지) 테스트"""
+    auto_cb, manual_cb = self.window.xaxis_checkboxes
+    QTest.mouseClick(auto_cb, Qt.LeftButton)
+    self.assertTrue(auto_cb.isChecked())
+    self.assertFalse(manual_cb.isChecked())
+    QTest.mouseClick(manual_cb, Qt.LeftButton)
+    self.assertTrue(manual_cb.isChecked())
+    self.assertFalse(auto_cb.isChecked())
+
+  def test_signal_checkboxes(self):
+    """신호 선택 체크박스 토글 동작 테스트"""
+    for i, cb in enumerate(self.window.signal_checkboxes):
+      QTest.mouseClick(cb, Qt.LeftButton)
+      self.assertTrue(cb.isChecked())
+      QTest.mouseClick(cb, Qt.LeftButton)
+      self.assertFalse(cb.isChecked())
 
 if __name__ == "__main__":
   unittest.main() 
