@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# 가상환경
+.venv/
+env/
+venv/
+
+# IDE/에디터
+.vscode/
+.idea/
+*.swp
+
+# OS/임시
+.DS_Store
+Thumbs.db
+*.log
+
+# 기타
+.pytest_cache/
+coverage.*
+*.bak
